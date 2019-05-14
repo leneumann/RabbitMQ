@@ -1,0 +1,35 @@
+version: '3.5'
+networks: 
+  rabbit_tests:
+    name: rabbittests
+    external: false
+services:
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports: 
+      - "9501:15672" #ui
+      - "9502:5672"
+    restart: always
+    networks: 
+      - "rabbit_tests"
+    healthcheck:
+      timeout: 5s
+      interval: 5s
+      retries: 5
+      test:
+        - "CMD"
+        - "rabbitmqctl"
+        - "status"
+  worker:
+    environment: 
+      - NUGET_PACKAGES=/root/.nuget/packages
+      - NUGET_FALLBACK_PACKAGES=/root/.nuget/fallbackpackages
+    volumes: 
+     - ${USERPROFILE}/.nuget/packages:/root/.nuget/packages
+     - C:/Program Files/dotnet/sdk/NuGetFallbackFolder:/root/.nuget/fallbackpackages
+    image: ${DOCKER_REGISTRY}worker_service
+    container_name: ${DOCKER_REGISTRY}worker_service
+    build: 
+      context: 
