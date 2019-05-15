@@ -1,3 +1,3 @@
 # RabbitMQ
-## Workers
+## Formas de utilização
 [Workers](src/Workers/Workers.md)
