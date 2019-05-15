@@ -34,23 +34,23 @@ Para preservar as mensagens na fila mesmo quando o RabbitMQ é reiniciado, derru
 
 Para fazer isso na fila, basta adicionar o parâmentro durable à declaração da fila e informar true.
 
-    ```c#
-    channel.QueueDeclare(queue: "task_queue",durable: true);
-    ```
+```c#
+channel.QueueDeclare(queue: "task_queue",durable: true);
+```
 Agora para fazer isso para as mensagens, criamos um objeto BasicProperties pelo método create, definimos o atributo Persistent como true e adicionamos este objeto na passagem de parametros do método que efetua a publicação da mensagem:
 
-    ```c#
-    var properties = channel.CreateBasicProperties();
-    properties.Persistent = true;//Mark messages as persitent to prevent losses when RabbitMQ restarts.
-    channel.BasicPublish(exchange: "", routingKey: "task_queue", basicProperties: properties, body: body);
-    ```
+```c#
+var properties = channel.CreateBasicProperties();
+properties.Persistent = true;//Mark messages as persitent to prevent losses when RabbitMQ restarts.
+channel.BasicPublish(exchange: "", routingKey: "task_queue", basicProperties: properties, body: body);
+```
 
 ## Fair Dispatch
-    Para um melhor equilíbrio de carga existe uma opção onde é dito para o RabbitMQ não dar mais de uma mensagem para cada Worker por vez. Em outras palavras, não enviar uma nova mensagem para o worker até que o mesmo processe e efetue o ack da mensagem enviada anteriormente, com isso, a mensagem será enviada para o próximo worker disponível.
+Para um melhor equilíbrio de carga existe uma opção onde é dito para o RabbitMQ não dar mais de uma mensagem para cada Worker por vez. Em outras palavras, não enviar uma nova mensagem para o worker até que o mesmo processe e efetue o ack da mensagem enviada anteriormente, com isso, a mensagem será enviada para o próximo worker disponível.
 
-    ```c#
-    channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
-    ```
+```c#
+channel.BasicQos(prefetchSize: 0, prefetchCount: 1, global: false);
+```
 
 ### Nota sobre Queue Size
-    Se todos os Workers estão ocupados, sua fila pode ficar cheia. Você precisa fica de olho nisso e talvez, adicionar mais workers.
+Se todos os Workers estão ocupados, sua fila pode ficar cheia. Você precisa fica de olho nisso e talvez, adicionar mais workers.
